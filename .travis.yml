@@ -1,0 +1,18 @@
+language: bash
+services: docker
+env:
+  global:
+  - secure: dfVCdsyjecYDTqu/grmQkikDdwzbdREPv1bVBQxO6bNe1i5DSAFyaEXkqsnhnGbNjfV0F5o9gZyvF/swc82PXAxZPr+FX7jcM8JdD1c+yRZyb39l6q1G4jvNuApoN3aNKOHyrfQ4V2ZaPUvxvTG99Ohdff7uM2ziIXbHvgP52k5zboAsBhwmfbAB+kKh/+CvAi4qATKGdYWUnco2T1yxYAfXvBE5/m/ChrDzx7zU7mURmXBHILyZLAJLcAyXnIKhsTO687HJiHnMMJklB07qmK6pAZrbA5+/uhYa5iiUlx1S1hfuxEVBJp2tMM8OGONRgmJtzzM+lWK+5PWf18+okfg8aueK3jmMFqxP+OPj1FYfXt48co6bXUsEKp44FPe+YVeeXU5bl70ZyodXNu6jTRyRSsDKwaqS8CmK2Vb7hPSqIbXHdhtuPcnk1W0sX3T7ATLI4J4znyz8TSEMPbl7NskIpa71CMvlKPVbLllcoL5zVxh4TjfERQL2gkhzezg07c76//bcwNTpXWulSc1MXJysNG7GiO1tFWcxa3BhpGLYWkTbK7ULbRgKWwz1KxdzS8RrjGn6Bx9lX4bqaORIdmgKyO7UPiSrKxK5vvo+TrKpnkzz+fFmM0AuN6phQvwZSlZm1wEV4k/bsykL4qR9b8tiaHIpJ/TDKApG0mHrtJc=
+  - secure: MkkkdJjaUQDR5AL78STKbjoT85XCz8LmvJ6GrFNKlKvr9iIhnJPg09B/KBOJGLCj3MM6bBNOQoHU7PrkqERmLXWg8DAUep3VUhsjFbl8QkrsIe8yvMqLQ6Ajjmuu8i0ZoFI/wwyJiMiWLuiGSUqiaXiNC8NvwZz4K6ZHebeaWZDLAv/N3TAPPIyDyWa7Alh0GbEDF+G9xKIHcL00EfE8xNWySFp/ZSNTCAr0sKEakws+EBAT/ImyZT2BRImEysHUYhP1Ms1dDgkZuCdsSEbTHJab6UCEVmfAyELb93afPIi1PN/ZkruEL/5OvNsdlEpF51+G9rCI1iHBlVnL7svRmdU8PF9a+H7S3ajjsjOZXfbgaMvtxJTxnfTUC9u1WAOBHe5kZgznnT3grEsjYuYMtk3gJmbPmuumQROfmK2REhxm5fa3ukwTrIj0aVb99K3ggyu5vdcuazodaL97mpdwiWfsKUbJyDOR8fQ65GtkRqxktRQfKY7kwiolpYKTWYF9xI7GFQKKSoAbPlu9r7M2UZyYc9SaZuXzSob63LE3+ydfRQkWpD/a+1Z/qJQMSBszdsF1s13ktNmkdqimS2eR71jWdtnRewCNd0/P0nfdfs3OozrjwNo99hz+LwYqXrt5FwTNM5VjDTwivSYLBXhJ6+K6I7X3e2890+Uxf284r+4=
+  - secure: PWCrMJfCjxvjOywLAt/L9BSrHThm5F8zI0d6MJqkcUELA8W574JK+sSTApHOJFiQee5Ke/WWMkjz8toc3lC7wx5pvhSH+0R4CMAfNpabWG3/G0ioHYrh9gtPYb9kFdMOvDo9t7DT4pXC7HjIWV4z8qJ6BRAwde/t3iCPfdhysZW9bmaY57QkWUH3CSFpjbHG5+zMVdJvgtdAM0vUga+mgg7f+5o5fYP0wstM4PCb/k9LE5rbfWfFgGmJG49wWHCQG1aBVKMXCw5XJZQ67OI7wJkUtTkriFZOebPe7sCtr9T7j9muEHxxYkhsAaPSkbgqlS+os2gTjhWubSPkG1QxeBEaFNYxcWxNFcNlzvJz4W7s0Hz7qyBSclXdlFZRhVeQ6JlAbixqnRTeEJoV9AQxVjLD5nw+QEgg4ULMBnZutPPe0zKPXYCwz023A64Aygr11+sidevlXTZhPwK/vqE5zm63p73rgyHkZqWjD1yhDScsGRe2XlkLblqjjM66887VRqUdv4GQOxEts/2NI49Y/VdPUd3eh8DcztleLy6ezo8kbu+E50WYKSXq0htAGfDj+kLRcFHaCagX0Qpto5FZM0L+drwUq6ZofOSa1LaKRlEaEnFMVilU2c/g1c4FaF2VpLTW8eUMjq5S3Eo/BaI3sknuPkDXtaWst/iTlL/Gzq4=
+install:
+- git clone https://github.com/docker-library/official-images.git ~/official-images
+script:
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH;
+  fi`
+- docker build -f Dockerfile -t ${TRAVIS_REPO_SLUG,,}:$TAG .
+- ~/official-images/test/run.sh -t php-hello-world "${TRAVIS_REPO_SLUG,,}:$TAG"
+after_success:
+- docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+- docker tag ${TRAVIS_REPO_SLUG,,}:$TAG ${TRAVIS_REPO_SLUG,,}:travis-$TRAVIS_BUILD_NUMBER
+- docker push ${TRAVIS_REPO_SLUG,,}
